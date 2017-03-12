@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+<body>
+	
+	<!-- jQuery -->
+	<script
+	  src="https://code.jquery.com/jquery-3.1.1.min.js"
+	  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+	  crossorigin="anonymous"></script>
+
+	<!-- Firebase -->
+	<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyB9J5mCkaiODl6iFiusJSj7IrWJVPfla68",
+	    authDomain: "rps-multiplayer-b0940.firebaseapp.com",
+	    databaseURL: "https://rps-multiplayer-b0940.firebaseio.com",
+	    storageBucket: "rps-multiplayer-b0940.appspot.com",
+	    messagingSenderId: "867997640650"
+	  };
+	  firebase.initializeApp(config);
+	</script>
+
+	<!-- Main js file / logic -->
+	<script src="assets/js/game.js"></script>
+</body>
+</html>
