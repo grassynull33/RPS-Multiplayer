@@ -6,7 +6,34 @@
 	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
 <body>
+	<h1>Rock, Paper, Scissors</h1>
+	<form id="player-form">
+		<input id="player-name" type="text" placeholder="Name"></input>
+		<button id="name-submit-button" type="submit">Start</button>
+	</form>
+	<p id="you-are-message">Hi, <span id="p-name"></span>! You are Player <span id="p-num"></span></p>
+	<p id="game-message">Game message goes here</p>
+	<div class="container">
+		<section id="p1-section">
+			<div id="p1-name">Waiting for Player 1</div>
+			<div id="p1-choices"></div>
+			<div id="p1-stats">Wins: <span id="p1-wins">0</span> | Losses: <span id="p1-losses">0</span></div>
+		</section>
+		<section>
+			<span id="outcome"></span>
+		</section>
+		<section id="p2-section">
+			<div id="p2-name">Waiting for Player 2</div>
+			<div id="p2-choices"></div>
+			<div id="p1-stats">Wins: <span id="p2-wins">0</span> | Losses: <span id="p2-losses">0
+		</section>
+	</div>
 	
+	<!-- Chat -->
+	<!--<textarea></textarea>
+	<input type="text"></input>
+	<button type="submit">Send</button> -->
+
 	<!-- jQuery -->
 	<script
 	  src="https://code.jquery.com/jquery-3.1.1.min.js"
@@ -15,19 +42,8 @@
 
 	<!-- Firebase -->
 	<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
-	<script>
-	  // Initialize Firebase
-	  var config = {
-	    apiKey: "AIzaSyB9J5mCkaiODl6iFiusJSj7IrWJVPfla68",
-	    authDomain: "rps-multiplayer-b0940.firebaseapp.com",
-	    databaseURL: "https://rps-multiplayer-b0940.firebaseio.com",
-	    storageBucket: "rps-multiplayer-b0940.appspot.com",
-	    messagingSenderId: "867997640650"
-	  };
-	  firebase.initializeApp(config);
-	</script>
 
 	<!-- Main js file / logic -->
-	<script src="assets/js/game.js"></script>
+	<script src="assets/js/game3.js"></script>
 </body>
 </html>
