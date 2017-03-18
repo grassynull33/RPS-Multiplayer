@@ -59,6 +59,11 @@ var displayChoices = function(pNum) {
 		}
 }
 
+var removeChoices = function() {
+	p1Ref.child("choice").remove();
+	p2Ref.child("choice").remove();
+}
+
 // Code to execute
 
 
@@ -91,15 +96,14 @@ $("#name-submit-button").on("click", function(e) {
 
 			playerNum = 2;
 
-			// purpose: for triggering turn messages, only after playerNum has been assigned
-			playersRef.update({
-				player2Exist: true
-			});
-
 			displayHiMsg();
 
 			// hide form once p2 has been created by user
 			$("#player-form").hide();
+
+			ref.update({
+				turn: turn
+			});
 		}
 	});
 });
@@ -111,6 +115,7 @@ $(document).on("click", ".p1-choice", function() {
 		choice: choice
 	});
 	$("#p1-choices").empty();
+	$("#p1-choices").text(choice);
 });
 
 //		event listener for p2 clicking on choice
@@ -120,6 +125,7 @@ $(document).on("click", ".p2-choice", function() {
 		choice: choice
 	});
 	$("#p2-choices").empty();
+	$("#p2-choices").text(choice);
 });
 
 // Firebase listeners
@@ -138,13 +144,11 @@ p2Ref.child("name").on("value", function(snap) {
 
 playersRef.on("value", function(snap) {
 	//		what to do when both players are detected
-	if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
-		//		hide name input when game has both p1 and p2
-		$("#player-form").hide();	
-		console.log("x");
+	if(turn === 1) { //		for initial turn
+		if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
+			//		hide name input when game has both p1 and p2
+			$("#player-form").hide();
 
-		//		after p2 has entered game
-		if(snap.child("player2Exist").exists() === true) {
 			//		display turn messages
 			displayTurnMsg();
 
@@ -159,13 +163,171 @@ playersRef.on("value", function(snap) {
 				displayChoices(2);
 			}
 		}
+	} else { //		for all subsequent turns
+		if(snap.child(1).child("choice").exists() === false && snap.child(2).child("choice").exists() === false) {
+			//		display turn messages
+			displayTurnMsg();
+
+			//		render p1's choices
+			displayChoices(1);
+		} else if(snap.child(1).child("choice").exists() === true && snap.child(2).child("choice").exists() === false) {
+			//		after p1 makes choice, render p2's choices
+				displayChoices(2);
+		}
 	}
 });
 
-p1Ref.child("choice").on("value", function(snap) {
+//		trigger outcome logic after p2 makes choice
+p2Ref.on("child_added", function(snap) {
+	if(snap.val() == "Rock" || snap.val() == "Paper" || snap.val() == "Scissors") {
+		//		outcome logic
+		playersRef.once("value", function(snap) {
+			var p1Choice = snap.val()[1].choice;
+			var p2Choice = snap.val()[2].choice;
+			var p1Wins = snap.val()[1].wins;
+			var p2Wins = snap.val()[2].wins;
+			var p1Losses = snap.val()[1].losses;
+			var p2Losses = snap.val()[2].losses;
+			var p1Name = snap.val()[1].name;
+			var p2Name = snap.val()[2].name;
 
-});
+			if(p1Choice === "Rock" && p2Choice === "Rock") {
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text("Tie Game!");
+			} else if(p1Choice === "Rock" && p2Choice === "Paper") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
 
-p2Ref.child("choice").on("value", function(snap) {
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
 
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p2Name + " Wins!");
+			} else if(p1Choice === "Rock" && p2Choice === "Scissors") {
+				p1Wins++;
+				p1Ref.update({
+					wins: p1Wins
+				});
+
+				p2Losses++;
+				p2Ref.update({
+					losses: p2Losses
+				});
+
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p1Name + " Wins!");
+			} else if(p1Choice === "Paper" && p2Choice === "Rock") {
+				p1Wins++;
+				p1Ref.update({
+					wins: p1Wins
+				});
+
+				p2Losses++;
+				p2Ref.update({
+					losses: p2Losses
+				});
+
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p1Name + " Wins!");
+			} else if(p1Choice === "Paper" && p2Choice === "Paper") {
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text("Tie Game!");
+			} else if(p1Choice === "Paper" && p2Choice === "Scissors") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
+
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
+
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p2Name + " Wins!");
+			} else if(p1Choice === "Scissors" && p2Choice === "Rock") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
+
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
+
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p2Name + " Wins!");
+			} else if(p1Choice === "Scissors" && p2Choice === "Paper") {
+				p1Wins++;
+				p1Ref.update({
+					wins: p1Wins
+				});
+
+				p2Losses++;
+				p2Ref.update({
+					losses: p2Losses
+				});
+
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text(p1Name + " Wins!");
+			} else if(p1Choice === "Scissors" && p2Choice === "Scissors") {
+				turn++;
+				ref.update({
+					turn: turn
+				});
+				$("#outcome").text("Tie Game!");
+			}
+
+			//		the end of turn reveal of player choices
+			$("#p1-choices").text(p1Choice);
+			$("#p2-choices").text(p2Choice);
+
+			//		update wins & losses
+			$("#p1-wins").text(p1Wins);
+			$("#p1-losses").text(p1Losses);
+			$("#p2-wins").text(p2Wins);
+			$("#p2-losses").text(p2Losses);
+
+			//		set timer to clear view to render new game
+			setTimeout(function() {
+				$("#outcome").empty();
+				$("#p1-choices").empty();
+				$("#p2-choices").empty();
+				displayChoices(1);
+
+				//		remove choice children for both p1 and p2
+				p1Ref.child("choice").remove();
+				p2Ref.child("choice").remove();
+			}, 5000);
+		});
+	}
 });
