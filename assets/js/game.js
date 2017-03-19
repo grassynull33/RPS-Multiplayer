@@ -310,9 +310,12 @@ chat.on("child_added", function(snap) {
 	var name = snap.val().name;
 	var time = snap.val().time;
 	var message = snap.val().message;
-	var li = $("<li class='message'>").text(name + ": " + message + " ");
+	var li = $("<li class='message'>").text(": " + message + " ");
+	li.prepend($("<span class='name'>").text(name));
 	li.append($("<span class='timestamp'>").text(time));
 	$("#message-view").append(li);
+
+	$("#message-view").animate({ scrollTop: $("#message-view")[0].scrollHeight}, 500);
 });
 
 //Send button for chat click even listener
@@ -321,15 +324,16 @@ $("#send-button").on("click", function(e) {
 
 	if(playerName !== undefined) {
 		var message = $("#chat-message").val();
-
-		$("#chat-message").val("");
-
-		var time = new Date().toLocaleString();
+		var time = new Date().toLocaleString("en-US", {hour: "numeric", minute: "numeric", second: "numeric"});
 
 		chat.push({
 			name: playerName,
 			message: message,
 			time: time
 		});
+
+		$("#message-view").animate({ scrollTop: $("#message-view")[0].scrollHeight}, 500);
+
+		$("#chat-message").val("");
 	}
 });
