@@ -78,7 +78,8 @@ $("#name-submit-button").on("click", function(e) {
 			p1Ref.set({
 				name: playerName,
 				wins: 0,
-				losses: 0
+				losses: 0,
+				madeChoice: false
 			});
 
 			playerNum = 1;
@@ -112,7 +113,8 @@ $("#name-submit-button").on("click", function(e) {
 $(document).on("click", ".p1-choice", function() {
 	var choice = $(this).attr("data-choice");
 	p1Ref.update({
-		choice: choice
+		choice: choice,
+		madeChoice: true
 	});
 	$("#p1-choices").empty();
 	$("#p1-choices").text(choice);
@@ -143,43 +145,42 @@ p2Ref.child("name").on("value", function(snap) {
 });
 
 playersRef.on("value", function(snap) {
+	var p1MadeChoice;
+	p1Ref.once("value", function(snap) {
+		p1MadeChoice = snap.val().madeChoice;
+	});
+
 	//		what to do when both players are detected
-	if(turn === 1) { //		for initial turn
-		if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
-			//		hide name input when game has both p1 and p2
-			$("#player-form").hide();
+	if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
+		//		hide name input when game has both p1 and p2
+		$("#player-form").hide();
 
-			//		display turn messages
-			displayTurnMsg();
+		//		display turn messages
+		displayTurnMsg();
 
-			//		make sure p1 hasn't made choice yet before display choices
-			if(snap.child(1).child("choice").exists() === false) {
-				//		render p1's choices
-				displayChoices(1);
-			}
-
-			//		after p1 makes choice, render p2's choices
-			if(snap.child(1).child("choice").exists() === true) {
-				displayChoices(2);
-			}
-		}
-	} else { //		for all subsequent turns
-		if(snap.child(1).child("choice").exists() === false && snap.child(2).child("choice").exists() === false) {
-			//		display turn messages
-			displayTurnMsg();
-
+		//		make sure p1 hasn't made choice yet before display choices
+		if(snap.child(1).child("choice").exists() === false) {
 			//		render p1's choices
 			displayChoices(1);
-		} else if(snap.child(1).child("choice").exists() === true && snap.child(2).child("choice").exists() === false) {
-			//		after p1 makes choice, render p2's choices
-				displayChoices(2);
+			console.log("display first player choices");
+		}
+
+		//		after p1 makes choice, render p2's choices
+		if(snap.child(1).child("choice").exists() === true) {
+			displayChoices(2);
 		}
 	}
 });
 
 //		trigger outcome logic after p2 makes choice
-p2Ref.on("child_added", function(snap) {
-	if(snap.val() == "Rock" || snap.val() == "Paper" || snap.val() == "Scissors") {
+playersRef.on("value", function(snap) {
+	var p2Choice = null;
+
+	if(snap.val()[2].choice !== null) {
+		var p2Choice = snap.val()[2].choice;
+	}
+	
+	if(p2Choice !== null) {
 		//		outcome logic
 		playersRef.once("value", function(snap) {
 			var p1Choice = snap.val()[1].choice;
@@ -323,6 +324,7 @@ p2Ref.on("child_added", function(snap) {
 				$("#p1-choices").empty();
 				$("#p2-choices").empty();
 				displayChoices(1);
+				console.log("display first player choices");
 
 				//		remove choice children for both p1 and p2
 				p1Ref.child("choice").remove();
