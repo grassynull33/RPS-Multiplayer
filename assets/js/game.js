@@ -17,6 +17,7 @@ var p2Ref = firebase.database().ref("players/2");
 //Local vars
 var playerName;
 var playerNum;
+var turn = 1;
 
 //Player enter event listener
 $("#name-submit-button").click(function(e) {
@@ -68,10 +69,11 @@ playersRef.on("value", function(snap) {
 	if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
 		// hide new player input for 3rd parties
 		$("#player-form").hide();
-
+		
 		//display p1 choices (only once despite listener running multiple times)
-		if($("#p1-choices").val() === "" && playerNum === 1 && snap.child(1).child("choice").exists() === false) {
+		if($("#p1-choices").val() === "" && playerNum === 1 && snap.child(1).child("choice").exists() === false && snap.child(2).child("choice").exists() === false) {
 			console.log("display p1");
+			console.log(snap.val());
 			var r = $("<div>").text("Rock").attr("data-choice", "Rock").addClass("p1-choice");
 			var p = $("<div>").text("Paper").attr("data-choice", "Paper").addClass("p1-choice");
 			var s = $("<div>").text("Scissors").attr("data-choice", "Scissors").addClass("p1-choice");
@@ -136,4 +138,148 @@ $(document).on("click", ".p2-choice", function() {
 	});
 
 	$("#p2-choices").text(p2Choice);
+});
+
+//Firebase listener after both players have made choices
+playersRef.on("value", function(snap) {
+	var p1Choice;
+	var p2Choice;
+	var p1Name;
+	var p2Name;
+	var p1Wins;
+	var p2Wins;
+	var p1Losses;
+	var p2Losses;
+	//only proceed to outcome if both players exist and both have choices
+	if(snap.child(1).exists() === true && snap.child(2).exists() === true && snap.child(1).child("choice").exists() === true && snap.child(2).child("choice").exists() === true) {
+		playersRef.once("value", function(snap) {
+			p1Choice = snap.val()[1].choice;
+			p2Choice = snap.val()[2].choice;
+			p1Ref.child("choice").remove();
+			p2Ref.child("choice").remove();
+			p1Name = snap.val()[1].name;
+			p2Name = snap.val()[2].name;
+			p1Wins = snap.val()[1].wins;
+			p2Wins = snap.val()[2].wins;
+			p1Losses = snap.val()[1].losses;
+			p2Losses = snap.val()[2].losses;
+			console.log(p1Choice, p2Choice);
+		}).then(function() {
+			if(p1Choice === "Rock" && p2Choice === "Rock") {
+				$("#outcome").text("Tie Game!");
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Rock" && p2Choice === "Paper") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
+				p2Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Rock" && p2Choice === "Scissors") {
+				p1Wins++;
+				p1Ref.update({
+					losses: p1Wins
+				});
+				p2Losses++;
+				p2Ref.update({
+					wins: p2Losses
+				});
+				p1Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Paper" && p2Choice === "Rock") {
+				p1Wins++;
+				p1Ref.update({
+					losses: p1Wins
+				});
+				p2Losses++;
+				p2Ref.update({
+					wins: p2Losses
+				});
+				p1Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Paper" && p2Choice === "Paper") {
+				$("#outcome").text("Tie Game!");
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Paper" && p2Choice === "Scissors") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
+				p2Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Scissors" && p2Choice === "Rock") {
+				p1Losses++;
+				p1Ref.update({
+					losses: p1Losses
+				});
+				p2Wins++;
+				p2Ref.update({
+					wins: p2Wins
+				});
+				p2Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Scissors" && p2Choice === "Paper") {
+				p1Wins++;
+				p1Ref.update({
+					losses: p1Wins
+				});
+				p2Losses++;
+				p2Ref.update({
+					wins: p2Losses
+				});
+				p1Ref.once("value", function(snap) {
+					$("#outcome").text(snap.val().name + " Wins!");
+				});
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			} else if(p1Choice === "Scissors" && p2Choice === "Scissors") {
+				$("#outcome").text("Tie Game!");
+				turn++;
+				ref.update({
+					turn: turn
+				});
+			}
+		});
+	}
 });
