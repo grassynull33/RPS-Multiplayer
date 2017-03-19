@@ -62,3 +62,10 @@ p2Ref.child("name").on("value", function(snap) {
 		$("#p2-name").text(snap.val());
 	}
 });
+
+//Firebase listener to hide new player input when both players exist (in case of 3rd parties watching)
+playersRef.on("value", function(snap) {
+	if(snap.child(1).exists() === true && snap.child(2).exists() === true) {
+		$("#player-form").hide();
+	}
+});
